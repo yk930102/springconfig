@@ -1,5 +1,9 @@
 kldjalkj,mnx,
 
-export class AppService{}
+export class AppService{
+
+	int d = 1;
+	getOk()
+}
 
 jsjfdklsm,nrwe
