@@ -4,6 +4,11 @@ export class AppService{
 
 	int d = 1;
 	getOk()
+	int d = 1;
+	int d = 1;
+	int d = 1;
+	int d = 1;
+	int d = 1;
 }
 
 jsjfdklsm,nrwe
