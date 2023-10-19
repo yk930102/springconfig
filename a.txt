@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 nishismfjdsliejsd
+=======
+java like php python
+>>>>>>> refs/remotes/origin/master
