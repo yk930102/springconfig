@@ -1,2 +1,5 @@
 kldjalkj,mnx,
+
+export class AppService{}
+
 jsjfdklsm,nrwe
