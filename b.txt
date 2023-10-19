@@ -1,5 +1,9 @@
-kldjalkj,mnx,
-
+java
+like 
+pho
+hello
+ok
+get
 export class AppService{
 
 	int d = 1;
