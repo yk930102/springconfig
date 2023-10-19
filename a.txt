@@ -1,5 +1,17 @@
-<<<<<<< HEAD
-nishismfjdsliejsd
-=======
-java like php python
->>>>>>> refs/remotes/origin/master
+package com.demo;
+
+import java.util.Optional;
+
+public class OptionsTest {
+    public static void main(String[] args) {
+        Integer a = 2;
+        System.out.println(Optional.ofNullable(a).orElse(new Integer(5)));
+//        System.out.println(Optional.ofNullable(a).get());
+        System.out.println(Optional.ofNullable(a).isPresent());
+//        Menu menu = new Menu();
+        Optional.ofNullable(a).ifPresent((v)->System.out.println(v));
+//        System.out.println(Optional.ofNullable(a).ifPresent((v)->{
+//            return v;
+//        });
+    }
+}
