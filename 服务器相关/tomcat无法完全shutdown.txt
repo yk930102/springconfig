@@ -1,0 +1,9 @@
+1.在tomcat/bin/shutdown.sh文件中增加一个参数
+原来：      exec "$PRGDIR"/"$EXECUTABLE" stop "$@"
+增加参数后：exec "$PRGDIR"/"$EXECUTABLE" stop -force "$@"
+
+2.在tomcat/bin/catalina.sh脚中，加入下面这三行
+	if [ -z "$CATALINA_PID" ]; then
+	    CATALINA_PID=$PRGDIR/CATALINA_PID
+	    cat $CATALINA_PID
+	fi

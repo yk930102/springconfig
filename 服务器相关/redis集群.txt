@@ -1,0 +1,42 @@
+wget https://download.redis.io/redis-stable.tar.gz
+tar -xzvf redis-stable.tar.gz
+cd redis-stable
+make
+
+
+pidfile /var/run/redis_7001.pid
+
+cluster-enabled yes
+cluster-config-file nodes-7001.conf
+cluster-node-timeout 15000
+
+#-a 密码  --cluster-replicas 1 从机数量
+#首次 需要添加集群 需要开通gossip端口 服务端口+10000 比如 7001+10000 = 17001
+src/redis-cli -a 303088 --cluster create 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005 127.0.0.1:7006 --cluster-replicas 1
+src/redis-cli -a 303088 --cluster create 47.98.206.15:7001 47.98.206.15:7002 47.98.206.15:7003 47.98.206.15:7004 47.98.206.15:7005 47.98.206.15:7006 --cluster-replicas 1
+
+src/redis-cli -a 303088 -c -p 7001
+
+cluster info
+
+cluster nodes
+
+min-slaves-to-write 1
+
+#添加节点 使用add-node命令新增一个主节点8007(master)，前面的ip:port为新增节点，后面的ip:port为已知存在节点
+src/redis‐cli ‐a 303088 ‐‐cluster add‐node 127.0.0.1:7007 127.0.0.1:7001
+src/redis‐cli ‐a 303088 ‐‐cluster add‐node 127.0.0.1:7008 127.0.0.1:7001
+
+#分配slot  使用redis-cli命令为8007分配hash槽，找到集群中的任意一个主节点，对其进行重新分片工作。
+src/redis‐cli ‐a 303088 ‐‐cluster reshard 127.0.0.1:7001
+
+#设置从节点
+src/redis‐cli ‐a 303088 ‐c ‐h 127.0.0.1 ‐p 7008
+127.0.0.1:7008> cluster replicate 2728a594a0498e98e4b83a537e19f9a0a3790f38 #后面这串id为7007的节点id
+
+#删除节点
+主从点需要先 分配slot
+src/redis‐cli ‐a zhuge ‐‐cluster reshard 127.0.0.1:7007
+
+#关闭集群 需要逐个关闭
+/usr/local/redis‐5.0.3/src/redis‐cli ‐a zhuge ‐c ‐h 192.168.0.60 ‐p 800* shutdown

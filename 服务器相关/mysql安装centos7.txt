@@ -1,0 +1,56 @@
+sudo ./bin/mysqld --initialize --user=mysql --basedir=/usr/local/mysql --datadir=/mnt/mysql/data
+
+gV!,CSljD0fP
+
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'mysql@Amin1617';
+mysql@Amin1617
+
+wget https://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-community-server-5.7.21-1.el7.x86_64.rpm
+wget https://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-community-client-5.7.21-1.el7.x86_64.rpm
+rpm -ivh mysql-community-server-5.7.21-1.el7.x86_64.rpm --nodeps --force
+rpm -ivh mysql-community-client-5.7.21-1.el7.x86_64.rpm --nodeps
+
+yum install libaio
+
+MYSQL5.7
+启动命令：service mysqld start / systemctl start mysqld
+停止命令：service mysqld stop / systemctl stop mysqld
+重启命令：service mysqld restart / systemctl restart mysqld
+//获取临时密码
+grep 'temporary password' /var/log/mysqld.log
+
+Wpphl%UnZ7kT
+
+1.# 检查 MySQL 是否已安装
+CMD#> sudo yum list installed | grep mysql
+# 也可以通过命令
+CMD#> rpm -qa|grep -i mysql
+2、卸载
+CMD#> sudo yum -y remove mysql-libs.x86_64 
+或者
+rpm -e --nodeps mysql-libs.x86_64 
+
+
+
+#################
+？yum install libaio
+？
+tar -xvf mysql-5.7.21-1.el7.x86_64.rpm-bundle.tar
+
+rpm -ivh mysql-community-common-5.7.21-1.el7.x86_64.rpm
+
+rpm -ivh mysql-community-libs-5.7.21-1.el7.x86_64.rpm
+
+rpm -ivh mysql-community-client-5.7.21-1.el7.x86_64.rpm
+
+rpm -ivh mysql-community-server-5.7.21-1.el7.x86_64.rpm
+
+启动命令：service mysqld start
+
+//获取临时密码
+grep 'temporary password' /var/log/mysqld.log   //yFpMq<uE-2gt
+//修改密码
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'mysql@Amin1617';
+
+//修改配置文件
+vim /etc/my.cnf
