@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans  xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xmlns:aop="http://www.springframework.org/schema/aop"
+		xmlns:context="http://www.springframework.org/schema/context"
+	 	xmlns:tx="http://www.springframework.org/schema/tx"
+	 	xmlns:mvc="http://www.springframework.org/schema/mvc"
+        xmlns:task="http://www.springframework.org/schema/task"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+							http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+							http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	    					http://www.springframework.org/schema/tx  http://www.springframework.org/schema/tx/spring-tx.xsd
+	    					http://www.springframework.org/schema/mvc  http://www.springframework.org/schema/mvc/spring-mvc.xsd
+							http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <context:property-placeholder location="classpath:db.properties" />
+
+    <!--以下配置项目管理slave数据源 -->
+	<!--配置连接池数据源 -->
+	<bean id="dataSourceDruidPmSlave" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+		<!-- 数据库基本信息配置 -->
+       <property name = "url" value = "${pm.slave.db.url}" />
+       <property name = "username" value = "${pm.slave.db.username}" />
+       <property name = "password" value = "${pm.slave.db.password}" />
+<!--        <property name = "url" value = "jdbc:mysql://47.110.238.59:3306/ztpm?useSSL=false" />-->
+<!--        <property name = "username" value = "root" />-->
+<!--        <property name = "password" value = "972527332@QQ.com" />-->
+       <property name = "driverClassName" value = "${pm.slave.db.driverClass}" />
+       <property name = "filters" value = "stat" />
+        <!-- 最大并发连接数 -->  
+       <property name = "maxActive" value = "150" />
+       <!-- 初始化连接数量 -->  
+       <property name = "initialSize" value = "1" />
+       <!-- 配置获取连接等待超时的时间 -->  
+       <property name = "maxWait" value = "5000" />
+       <!-- 最小空闲连接数 -->  
+       <property name = "minIdle" value = "10" />
+       <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+       <property name = "timeBetweenEvictionRunsMillis" value ="5000" />
+       <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+       <property name = "minEvictableIdleTimeMillis" value ="35000" />
+       <property name = "validationQuery" value = "SELECT 'x'"/>
+       <property name = "testWhileIdle" value = "true"/>
+       <property name = "testOnBorrow" value = "false"/>
+       <property name = "testOnReturn" value = "false"/>
+       <property name = "maxOpenPreparedStatements" value ="20"/>
+       <!-- 打开 removeAbandoned 功能 -->
+       <property name = "removeAbandoned" value = "true"/>
+       <!-- 1800 秒，也就是 30 分钟 -->
+       <property name = "removeAbandonedTimeout" value ="1800"/>
+       <!-- 关闭 abanded 连接时输出错误日志 -->
+       <property name = "logAbandoned" value = "true"/>
+	</bean>
+	
+	<!-- 将数据源注入给hibernate -->
+	<bean id="sessionFactoryPmSlave" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSourceDruidPmSlave"/>
+		<!-- hinerante相关配置文件 -->
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</prop>  
+                <!-- <prop key="hibernate.hbm2ddl.auto">update</prop> -->
+                <prop key="hibernate.show_sql">true</prop>  
+			</props>
+		</property>
+		
+		<property name="packagesToScan">
+			<list>
+				<value>com.pm</value>
+			</list>
+		</property>
+	</bean>			
+	
+	<!-- 事务管理 -->
+	<bean id="txManagerPmSlave" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactoryPmSlave"/>
+	</bean>
+	<!-- 支持注解方式事务管理 -->
+	<!-- <tx:annotation-driven transaction-manager="txManager"/> -->
+	
+    <!-- 事务属性配置,即事务管理方式 -->  
+    <tx:advice id="txAdvicePmSlave" transaction-manager="txManagerPmSlave">  
+        <tx:attributes>  
+            <tx:method name="*" propagation="REQUIRED" />  
+        </tx:attributes>  
+    </tx:advice>
+    
+    <!-- 事务控制位置，一般在业务层service -->  
+    <aop:config proxy-target-class="true">
+        <aop:pointcut id="txPointcutPmSlave" expression="execution(* com.pm.*.controller.*.*(..))" />  
+        <aop:advisor advice-ref="txAdvicePmSlave" pointcut-ref="txPointcutPmSlave"/>
+    </aop:config>
+	
+ 
+</beans>

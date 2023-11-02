@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans  xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xmlns:aop="http://www.springframework.org/schema/aop"
+		xmlns:context="http://www.springframework.org/schema/context"
+	 	xmlns:tx="http://www.springframework.org/schema/tx"
+	 	xmlns:mvc="http://www.springframework.org/schema/mvc" 
+		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+							http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+							http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	    					http://www.springframework.org/schema/tx  http://www.springframework.org/schema/tx/spring-tx.xsd
+	    					http://www.springframework.org/schema/mvc  http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+	
+	<import resource="classpath:myrabbitmq.xml" />
+	<aop:aspectj-autoproxy />
+	<!--<context:annotation-config/>-->
+	<!-- scan the package and the sub package 该配置已包含<context:annotation-config/>的功能-->
+	<context:component-scan base-package="com.zt, com.pm, com.res"/>
+	<mvc:annotation-driven />
+    <context:property-placeholder location="classpath:db.properties" />
+	<!-- 注册转化器 -->
+   <!--  <mvc:annotation-driven conversion-service="conversionService" />
+	<bean id="myconverer" class="com.zt.util.Test" />
+	<bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <ref bean="myconverer"/>
+            </set>
+        </property>
+    </bean> -->
+	<!--加载配置文件-->
+	<!-- <context:property-placeholder  location="classpath:config/jdbc.properties"/> -->
+	<!-- 文件上传配置 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="UTF-8"/>
+		<property name="maxInMemorySize" value="10240"/>
+		<property name="maxUploadSize" value="-1"/>
+		<property name="uploadTempDir" value="/temp/"/>
+	</bean>
+	
+	<!--以下配置数据源1 -->
+	<!--配置连接池数据源 -->
+	<bean id="dataSourceDruidPrimary" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+		<!-- 数据库基本信息配置 -->
+       <property name = "url" value = "${ztcost.db.url}" />
+       <property name = "username" value = "${ztcost.db.username}" />
+       <property name = "password" value = "${ztcost.db.password}" />
+       <property name = "driverClassName" value = "${ztcost.db.driverClass}" />
+       <property name = "filters" value = "stat" />
+        <!-- 最大并发连接数 -->  
+       <property name = "maxActive" value = "150" />
+       <!-- 初始化连接数量 -->  
+       <property name = "initialSize" value = "1" />
+       <!-- 配置获取连接等待超时的时间 -->  
+       <property name = "maxWait" value = "5000" />
+       <!-- 最小空闲连接数 -->  
+       <property name = "minIdle" value = "10" />
+       <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+       <property name = "timeBetweenEvictionRunsMillis" value ="5000" />
+       <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+       <property name = "minEvictableIdleTimeMillis" value ="35000" />
+       <property name = "validationQuery" value = "SELECT 'x'"/>
+       <property name = "testWhileIdle" value = "true"/>
+       <property name = "testOnBorrow" value = "false"/>
+       <property name = "testOnReturn" value = "false"/>
+       <property name = "maxOpenPreparedStatements" value ="20"/>
+       <!-- 打开 removeAbandoned 功能 -->
+       <property name = "removeAbandoned" value = "true"/>
+       <!-- 1800 秒，也就是 30 分钟 -->
+       <property name = "removeAbandonedTimeout" value ="1800"/>
+       <!-- 关闭 abanded 连接时输出错误日志 -->
+       <property name = "logAbandoned" value = "true"/>
+	</bean>
+	
+	<!-- 将数据源注入给hibernate -->
+	<bean id="sessionFactoryPrimary" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSourceDruidPrimary"/>
+		<!-- hinerante相关配置文件 -->
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</prop>  
+                <prop key="hibernate.hbm2ddl.auto">update</prop>
+                <prop key="hibernate.show_sql">true</prop>  
+			</props>
+		</property>
+		
+		<property name="packagesToScan">
+			<list>
+				<value>com.zt</value>
+			</list>
+		</property>
+	</bean>
+	
+	
+	<!-- Activiti流程引擎配置 -->
+	<bean id="processEngineConfiguration"  class="org.activiti.spring.SpringProcessEngineConfiguration">
+	 	<property name="dataSource" ref="dataSourceDruidPrimary"/>
+	 	<property name="transactionManager" ref="txManagerPrimary"/>
+	 	<property name="databaseSchemaUpdate" value="true" />
+    	<property name="jobExecutorActivate" value="false" />
+    	<property name="activityFontName" value="宋体"/>
+    	<property name="labelFontName" value="宋体"/>
+    	<property name="databaseSchema" value="ACT"/>
+	</bean>
+	 
+	<bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+   	    <property name="processEngineConfiguration" ref="processEngineConfiguration" />
+    </bean>
+	
+	
+	<!-- 事务管理 -->
+	<bean id="txManagerPrimary" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactoryPrimary"/>
+	</bean>
+	<!-- 支持注解方式事务管理 -->
+	<!-- <tx:annotation-driven transaction-manager="txManager"/> -->
+	
+    <!-- 事务属性配置,即事务管理方式 -->  
+    <tx:advice id="txAdvicePrimary" transaction-manager="txManagerPrimary">  
+        <tx:attributes>  
+            <tx:method name="*" propagation="REQUIRED" />  
+        </tx:attributes>  
+    </tx:advice>
+    
+    <!-- 事务控制位置，一般在业务层service -->  
+    <aop:config proxy-target-class="true">
+        <aop:pointcut id="txPointcutPrimary" expression="execution(* com.zt.*.controller.*.*(..))" />  
+        <aop:advisor advice-ref="txAdvicePrimary" pointcut-ref="txPointcutPrimary"/>
+    </aop:config>
+	
+	<!--以下内容是redis连接池及spring+redis+session集成配置-->	
+	<!--redis session配置 -->
+	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+	    <property name="maxTotal" value="100" />
+	    <property name="maxIdle" value="20" />
+		<property name="minIdle" value="10" />
+		<property name="testOnBorrow" value="true" />
+	</bean>
+	
+	<bean id="jedisConnectionFactory"  class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory" destroy-method="destroy">
+	    <property name="hostName" value="${redis.hostName}"/>
+	    <property name="port" value="${redis.port}"/>
+	    <property name="password" value="${redis.password}"/><!-- fanjh 88888888-->
+	    <property name="timeout" value="3000"/>
+	    <property name="usePool" value="true"/>
+	    <property name="poolConfig" ref="jedisPoolConfig"/>
+	</bean>
+ 	 <!--redis读写模板配置 -->
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
+	    <property name="connectionFactory" ref="jedisConnectionFactory" />
+	    
+	    <property name="keySerializer">  
+        	<bean class="org.springframework.data.redis.serializer.StringRedisSerializer" /> 
+    	</property>
+	    <property name="valueSerializer"> 
+        	<bean class="org.springframework.data.redis.serializer.StringRedisSerializer" /> 
+    	</property>
+    	
+    	<property name="hashKeySerializer"> 
+        	<bean class="org.springframework.data.redis.serializer.StringRedisSerializer" /> 
+    	</property>
+	    <property name="hashValueSerializer">  
+        	<bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" /> 
+    	</property>
+	</bean>
+	 <!--redis session有效时长-->
+	<bean id="redisHttpSessionConfiguration" class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration">
+	    <property name="maxInactiveIntervalInSeconds" value="1800" />
+	</bean>
+ 
+ 	<import resource="classpath:slave1.xml" />
+ 	<import resource="classpath:spring_pm.xml" />
+ 	<import resource="classpath:spring_pm_slave.xml" />
+  	<import resource="classpath:spring_rescost.xml" />
+ 	<import resource="classpath:spring_rescost_slave.xml" />
+</beans>
