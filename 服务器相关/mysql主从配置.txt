@@ -1,0 +1,40 @@
+grant all privileges  on *.* to test@'%' identified by "test";
+flush privileges
+grant REPLICATION SLAVE  on *.* to test@'%' identified by "test";
+flush privileges
+
+主机master
+配置文件中添加以下配置
+[mysqld]
+server_id=1
+log-bin=mysql-bin
+binlog_format=mixed  
+
+#bind_address 		= 0.0.0.0
+#server-id               = 117                  				 #IP地址最后一位
+#log_bin                 = /var/log/mysql/mysql-bin.log      		 #开启binlog 日志  
+#expire_logs_days        = 10                    			 #日志的缓存时间
+#max_binlog_size     	= 200M                        			#日志的最大大小
+#binlog_do_db            = python                			 #同步的数据库名称
+#binlog_ignore_db        = mysql                 			 #忽略同步的数据库 
+
+执行show master status
+记录file -》master_log_file | position-》master_log_pos的内容
+
+
+从机slave
+server-id = 41
+#加上以下参数可以避免更新不及时，SLAVE 重启后导致的主从复制出错
+read_only = 1
+master_info_repository=TABLE
+relay_log_info_repository=TABLE
+relay-log = slave-relay-bin
+ 
+#主服务器I/O日志读取、记录及存放
+relay-log-index = slave-relay-bin.index
+
+从机执行（不要换行）
+change master to master_host='主服务器ip地址',master_port=3306,master_user='链接主服务器账户',master_password='链接主服务器角色账户密码',master_log_file='主服务器file参数',master_log_pos=主服务器positon参数
+
+执行start slave
+show slave status查看两个 Yes

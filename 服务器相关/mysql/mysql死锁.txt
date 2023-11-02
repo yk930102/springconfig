@@ -1,0 +1,5 @@
+查看锁情况
+select*frominformation_schema.innodb_locks;
+
+查看死锁日志
+show engine innodb status;

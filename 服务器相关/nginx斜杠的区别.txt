@@ -1,0 +1,166 @@
+nginx在centos7安装
+
+官网下载nginx-1.21.5.tar.gz
+tar -zxvf nginx-1.21.5.tar.gz
+添加依赖
+yum -y install gcc openssl openssl-devel pcre-devel zlib zlib-devel
+执行(nginx目录下)
+./configure
+make
+make install
+修改配置文件
+ cd /usr/local/nginx/sbin 
+ ./nginx 启动
+
+
+CentOS7使用firewalld打开关闭防火墙与端口
+1、firewalld的基本使用
+启动： systemctl start firewalld
+关闭： systemctl stop firewalld
+查看状态： systemctl status firewalld 
+开机禁用  ： systemctl disable firewalld
+开机启用  ： systemctl enable firewalld
+
+nginx在配置proxy_pass的时候 URL结尾加斜线(/)与不加的区别和注意事项
+
+假设访问路径的 /pss/bill.html
+
+加/斜线的情况
+
+location /pss/ {undefined
+proxy_pass http://127.0.0.1:18081/;
+}
+被代理的真实访问路径为：http://127.0.0.1:18081/bill.html
+
+不加/斜线的情况
+
+location /pss/ {undefined
+proxy_pass http://127.0.0.1:18081;
+}
+被代理的真实访问路径为：http://127.0.0.1:18081/pss/bill.html
+
+
+
+
+配置ssl
+Nginx如果未开启SSL模块，配置Https时提示错误
+nginx: [emerg] the “ssl” parameter requires ngx_http_ssl_module in /usr/local/nginx/conf/nginx.conf:37
+
+1.Nginx开启SSL模块
+切换到源码包：
+
+cd /usr/local/src/nginx-1.11.3
+查看nginx原有的模块
+
+/usr/local/nginx/sbin/nginx -V
+在configure arguments:后面显示的原有的configure参数如下：
+
+–prefix=/usr/local/nginx --with-http_stub_status_module
+
+那么我们的新配置信息就应该这样写：
+
+./configure --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module
+运行上面的命令即可，等配置完
+
+配置完成后，运行命令
+
+make
+
+这里不要进行make install，否则就是覆盖安装
+
+然后备份原有已安装好的nginx
+
+cp /usr/local/nginx/sbin/nginx /usr/local/nginx/sbin/nginx.bak
+
+然后将刚刚编译好的nginx覆盖掉原有的nginx（这个时候nginx要停止状态）
+
+cp ./objs/nginx /usr/local/nginx/sbin/
+
+然后启动nginx，仍可以通过命令查看是否已经加入成功
+
+/usr/local/nginx/sbin/nginx -V
+
+nginx.conf
+ server {
+        listen       443 ssl;
+        server_name  www.yekun.top;
+
+        ssl_certificate      cert/www.yekun.top.pem;
+        ssl_certificate_key  cert/www.yeku.top.key;
+
+        ssl_session_cache    shared:SSL:1m;
+        ssl_session_timeout  5m;
+
+        ssl_ciphers  HIGH:!aNULL:!MD5;
+        ssl_prefer_server_ciphers  on;
+
+        location / {
+            root   html;
+            index  index.html index.htm;
+        }
+    }
+
+<!-- server {
+     #HTTPS的默认访问端口443。
+     #如果未在此处配置HTTPS的默认访问端口，可能会造成Nginx无法启动。
+     listen 443 ssl;
+     
+     #填写证书绑定的域名
+     server_name <yourdomain>;
+ 
+     #填写证书文件名称
+     ssl_certificate cert/<cert-file-name>.pem;
+     #填写证书私钥文件名称
+     ssl_certificate_key cert/<cert-file-name>.key;
+ 
+     ssl_session_cache shared:SSL:1m;
+     ssl_session_timeout 5m;
+	 
+     #自定义设置使用的TLS协议的类型以及加密套件（以下为配置示例，请您自行评估是否需要配置）
+     #TLS协议版本越高，HTTPS通信的安全性越高，但是相较于低版本TLS协议，高版本TLS协议对浏览器的兼容性较差。
+     ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;
+     ssl_protocols TLSv1.1 TLSv1.2 TLSv1.3;
+
+     #表示优先使用服务端加密套件。默认开启
+     ssl_prefer_server_ciphers on;
+ 
+ 
+    location / {
+           root html;
+           index index.html index.htm;
+    }
+} -->
+
+server {
+    listen 80;
+    #填写证书绑定的域名
+    server_name  www.yekun.top;
+    #将所有HTTP请求通过rewrite指令重定向到HTTPS。
+    rewrite ^(.*)$ https://$host$1;
+    location / {
+        index index.html index.htm;
+    }
+}
+
+
+#直接匹配网站根，通过域名访问网站首页比较频繁，使用这个会加速处理，官网如是说。
+#这里是直接转发给后端应用服务器了，也可以是一个静态首页
+# 第一个必选规则
+location = / {
+    proxy_pass http://tomcat:8080/index
+}
+ 
+# 第二个必选规则是处理静态文件请求，这是nginx作为http服务器的强项
+# 有两种配置模式，目录匹配或后缀匹配,任选其一或搭配使用
+location ^~ /static/ {                              //以xx开头
+    root /webroot/static/;
+}
+location ~* \.(gif|jpg|jpeg|png|css|js|ico)$ {     //以xx结尾
+    root /webroot/res/;
+}
+ 
+#第三个规则就是通用规则，用来转发动态请求到后端应用服务器
+#非静态文件请求就默认是动态请求，自己根据实际把握
+location / {
+    proxy_pass http://tomcat:8080/
+}

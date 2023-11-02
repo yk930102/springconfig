@@ -1,0 +1,83 @@
+永中 
+帐号/密码：root/YDAmin@2816@Ztws
+内网：172.16.72.54
+公网：47.111.106.142
+端口:25371
+帐号：root
+密码：YDAmin@2816@Ztws
+
+
+
+http://ztit.zjzhongtian.com:1122/dcscloud/swagger-ui/index.html 
+http://ztit.zjzhongtian.com:1122/dcscloud/query/dccExpiration
+
+
+关闭
+cd /root/yozofcs/bin/
+./shutdown.sh
+查看是否关闭完全
+ps -ef | grep java
+kill -9 杀死
+启动
+./startUp.sh
+
+
+配置文件
+/root/yozofcs/apache-tomcat-9.0.62/webapps/dcscloud/WEB-INF/classes
+application.yml
+config.properties
+convertConfig.properties
+
+
+更换授权文件
+/root/yozofcs/bin/update/conf
+config.eni
+fcs.eni
+
+apache-tomcat-9.0.62/webapps/dcscloud/WEB-INF/classes下，名字叫：fcs.eni
+apache-tomcat-9.0.62/webapps/dcscloud/WEB-INF/classes/jar/dcc/dcsConvert_lib/Config，名为config.eni
+
+
+
+
+永中weboffice
+内网：172.16.72.49
+公网：121.41.18.217
+端口:25371
+帐号：root
+密码：YDAmin@2816@Ztws
+
+mysql密码
+mysql@Amin1617
+
+替换授权文件
+cp -i  webConfig.eni /wo160/weboffice_1/webapps/ROOT/WEB-INF/lib/Config/webConfig.eni
+cp -i  webConfig.eni /wo160/weboffice_2/webapps/ROOT/WEB-INF/lib/Config/webConfig.eni
+cp -i  webConfig.eni /wo160/weboffice_3/webapps/ROOT/WEB-INF/lib/Config/webConfig.eni
+
+1、关闭wo的相关服务
+a.关闭agent：
+	先使用ps -ef|grep agent 查询agent进程号pid，在使用kill -9 pid杀掉该进程
+b.关闭weboffice
+	cd /wo160/bin
+	./weboffice.sh stop
+	如果执行之后命令之后，没有关闭该服务，先使用ps -ef|grep weboffice查询weboffice进程号pid，再使用kill -9 pid杀掉该进程
+c.关闭redis
+	先使用ps -ef|grep redis查询redis进程号pid，再使用kill -9 pid杀掉该进程
+
+2、依次启动wo的相关服务
+a.启动redis
+ /usr/local/redis/bin/redis-server /usr/local/redis/redis.conf
+ 部署wo之后，redis默认安装在/usr/local/redis目录下。启动成功后可用ps -ef|grep redis查询redis进程。
+
+b.启动weboffice(更新授权 覆盖weboffice_X 下的webConfig.eni 文件  cd /wo160/weboffice_3/webapps/ROOT/WEB-INF/lib/Config)
+# cd /wo160/bin
+# ./weboffice.sh restart && tail -f ../weboffice_1/logs/catalina.out
+
+c.启动agent
+# cd /wo160/agent
+
+启动并查看日志
+# nohup ./agent & 
+# tail -f nohup.out 
+

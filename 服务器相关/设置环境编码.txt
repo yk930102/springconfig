@@ -1,0 +1,21 @@
+locale 查看当前系统环境编码
+locale -a 查看本地语言包
+
+
+source /etc/locale.conf
+
+/etc/sysconfig/i18n
+/etc/sysconfig/i18n
+/etc/locale.conf
+
+source /etc/sysconfig/i18n
+
+centos 安装redis
+wget http://download.redis.io/releases/redis-5.0.7.tar.gz
+
+
+
+
+Linux字体文件放在/usr/share/fonts/
+yum install fontconfig -y
+fc-cache -fv
