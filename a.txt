@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 package com.demo;
 ;ldkas;lk;flieklfdskhljflkfjldiklfjdslkjiefklfsdkbueworiqfmxnzmvbaipf
 import java.util.Optional;
@@ -17,8 +16,3 @@ public class OptionsTest {
 //        });
     }
 }
-=======
-i like 
-
-java like php python
->>>>>>> Stashed changes
