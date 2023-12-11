@@ -1,7 +1,9 @@
+<aaaaaaaaaaai:<<<<<< Updated upstream
 package com.demo;
 ;ldkas;lk;flieklfdskhljflkfjldiklfjdslkjiefklfsdkbueworiqfmxnzmvbaipf
 import java.util.Optional;
 新增的一段内容
+在来一段内容
 public class OptionsTest {
     public static void main(String[] args) {
         Integer a = 2;
@@ -15,3 +17,8 @@ public class OptionsTest {
 //        });
     }
 }
+=======
+i like 
+
+java like php python
+>>>>>>> Stashed changes
