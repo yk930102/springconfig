@@ -1,0 +1,31 @@
+内存泄漏
+top free df 三连
+jstat -gc pid [interval] 命令查看了 java 进程的 GC 状态
+jstack pid > jstack.log 保存了线程栈的现场
+
+# 堆信息
+ jmap -dump:format=b,file=heap.log pid 保存了堆现场
+jmap -dump:format=b,file=文件名.hprof <进程ID>
+jmap -dump:format=b,file=文件名.dump <进程ID>
+使用jvisualvm来分析dump文件 jdk自带
+
+# 打印存活的对象大小和个数
+jmap -histo:live 64421 > live.log
+
+ 栈的分析很简单，看一下线程数是不是过多，多数栈都在干嘛。
+grep 'java.lang.Thread.State' jstack.log  | wc -l
+grep -A 1 'java.lang.Thread.State' jstack.log  | grep -v 'java.lang.Thread.State' | sort | uniq -c |sort -n
+
+压缩文件
+gzip  -1 ~ -9 来指定它的压缩级别
+
+
+
+
+
+ S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    CCSC   CCSU   YGC     YGCT    FGC    FGCT     GCT
+1856.0 1856.0 132.1   0.0   15104.0   5293.8   37524.0    24342.0   61952.0 59114.9 7168.0 6631.8 179834  741.189  21      2.361  743.550
+
+ S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    CCSC   CCSU   YGC     YGCT    FGC    FGCT     GCT
+34944.0 34944.0  0.0    45.6  279616.0 25260.1   699072.0   11856.0   24320.0 23525.2 2816.0 2589.7   2789    4.267   1      0.058    4.326
+
