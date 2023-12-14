@@ -1,0 +1,41 @@
+server:
+  port: 8092
+spring:
+  application:
+    name: service-order
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://172.18.15.82:3306/shop?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
+    username: root
+    password: root
+  jpa:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+  #
+  cloud:
+    alibaba:
+      seata:
+        tx-service-group: ${spring.application.name}
+    nacos:
+      config:
+        server-addr: localhost:8848 # nacos的服务端地址
+        namespace: public
+        group: SEATA_GROUP
+      discovery:
+        server-addr: 127.0.0.1:8848
+    sentinel:
+      filter:
+        enabled: false
+      transport:
+        port: 9999 #跟控制台交流的端口,随意指定一个未使用的端口即可
+        dashboard: localhost:8847 # 指定控制台服务的地址
+feign:
+  sentinel:
+    enabled: true
+rocketmq:
+  name-server: localhost:9876 #rocketMQ服务的地址
+  producer:
+    group: shop-order # 生产者组

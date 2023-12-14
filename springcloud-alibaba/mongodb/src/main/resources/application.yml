@@ -1,0 +1,42 @@
+
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    dynamic:
+      #设置默认的数据源或者数据源组,read
+      primary: read
+      #严格匹配数据源,默认false. true未匹配到指定数据源时抛异常,false使用默认数据源
+      strict: false
+      datasource:
+        read:
+          url: jdbc:mysql://localhost:3306/test?serverTimezone=UTC
+          username: root
+          password: root
+          initial-size: 1
+          min-idle: 1
+          max-active: 20
+          test-on-borrow: true
+          driver-class-name: com.mysql.cj.jdbc.Driver
+        write:
+          url: jdbc:mysql://localhost:3306/test2?serverTimezone=UTC
+          username: root
+          password: root
+          initial-size: 1
+          min-idle: 1
+          max-active: 20
+          test-on-borrow: true
+          driver-class-name: com.mysql.cj.jdbc.Driver
+
+  data:
+    mongodb:
+      uri: mongodb://47.98.206.15:27017/luban
+      #uri等同于下面的配置
+      #uri  mongodb://fox:fox@192.168.65.174:27017/test?authSource=admin 等同于下面的配置
+      #database: test
+      #host: 192.168.65.174
+      #port: 27017
+      #username: fox
+      #password: fox
+      #authentication-database: admin
+server:
+  port: 8801

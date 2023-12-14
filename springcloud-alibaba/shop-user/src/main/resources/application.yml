@@ -1,0 +1,31 @@
+server:
+  port: 8071
+spring:
+  application:
+    name: service-product
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://172.18.15.82:3306/shop?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
+    username: root
+    password: root
+  jpa:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+
+  mail:
+    host: smtp.qq.com #SMTP服务器主机名
+    username: 499738418@qq.com #邮箱用户名
+    password: uwatvfikkfscbgdj #邮箱授权码
+    properties.mail.smtp.auth: true #开启认证
+    properties.mail.smtp.starttls.enable: true #开启SSL/TLS强制检测
+
+rocketmq:
+  name-server: localhost:9876
