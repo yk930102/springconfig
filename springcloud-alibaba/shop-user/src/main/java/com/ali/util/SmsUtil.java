@@ -9,9 +9,9 @@ import com.aliyuncs.profile.IClientProfile;
 
 public class SmsUtil {
     //替换成自己申请的accessKeyId
-    private static String accessKeyId = "LTAI4FdQMGxVi2QV1fXwVBd6";
+    private static String accessKeyId = "**************";
     //替换成自己申请的accessKeySecret
-    private static String accessKeySecret = "cVteu4jmqIfUsKxcbFHFLugkM9lfhk";
+    private static String accessKeySecret = "*************";
     static final String product = "Dysmsapi";
     static final String domain = "dysmsapi.aliyuncs.com";
     /**
